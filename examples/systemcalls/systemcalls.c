@@ -1,4 +1,9 @@
 #include "systemcalls.h"
+#include <fcntl.h>     // open()
+#include <stdlib.h>    // system()
+#include <sys/stat.h>
+#include <sys/wait.h>  // waitpid()
+#include <unistd.h>    // fork()
 
 /**
  * @param cmd the command to execute with system()
@@ -9,15 +14,60 @@
 */
 bool do_system(const char *cmd)
 {
+    int res = system(cmd);
+    return res != 0;
+}
 
-/*
- * TODO  add your code here
- *  Call the system() function with the command set in the cmd
- *   and return a boolean true if the system() call completed with success
- *   or false() if it returned a failure
-*/
+bool _do_exec_v(const char *outputfile, int count, va_list args) {
+    
+    char * command[count+1];
+    int i;
+    for(i=0; i<count; i++)
+    {
+        command[i] = va_arg(args, char *);
+    }
+    command[count] = NULL;
 
-    return true;
+    const pid_t pid = fork();
+    if (pid == -1) {
+        perror("fork () failed");
+        return false;
+    } 
+    
+    if (pid == 0) { 
+        // Child process.
+
+        // First, re-direct stdout if needed.
+        if (outputfile) {
+            // https://stackoverflow.com/a/13784315/1446624
+            const int fd = open(outputfile, O_WRONLY|O_TRUNC|O_CREAT,
+                S_IWUSR|S_IRUSR|S_IRGRP|S_IROTH);
+
+
+            // dup2 (int fd, int fd2) - duplicates FD to FD2, closing FD2 and making it open on the same file,
+            // so the below will close fd 1 (stdout) first, and then make fd 1 a "clone" of our fd.
+            if (dup2(fd, 1) < 0) {
+                perror("dup2() failed");
+            }
+            // we can now close the "original" fd.
+            close(fd);
+        }
+
+        execv(command[0], &command[1]);
+        // exec() functions return only if an error has occurred.
+        perror("execv() failed");
+        exit(EXIT_FAILURE);
+    }
+        
+    // Parent process.
+    int status;
+    if (waitpid(pid, &status, 0) != pid) {
+        perror("waitpid() failed");
+        return false;
+    }
+
+    // Check the exit status.   
+    return WEXITSTATUS(status) == 0;
 }
 
 /**
@@ -38,30 +88,10 @@ bool do_exec(int count, ...)
 {
     va_list args;
     va_start(args, count);
-    char * command[count+1];
-    int i;
-    for(i=0; i<count; i++)
-    {
-        command[i] = va_arg(args, char *);
-    }
-    command[count] = NULL;
-    // this line is to avoid a compile warning before your implementation is complete
-    // and may be removed
-    command[count] = command[count];
-
-/*
- * TODO:
- *   Execute a system command by calling fork, execv(),
- *   and wait instead of system (see LSP page 161).
- *   Use the command[0] as the full path to the command to execute
- *   (first argument to execv), and use the remaining arguments
- *   as second argument to the execv() command.
- *
-*/
-
+    
+    _do_exec_v( /* stdout redirect */ NULL, count, args);
+    
     va_end(args);
-
-    return true;
 }
 
 /**
@@ -73,27 +103,8 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
 {
     va_list args;
     va_start(args, count);
-    char * command[count+1];
-    int i;
-    for(i=0; i<count; i++)
-    {
-        command[i] = va_arg(args, char *);
-    }
-    command[count] = NULL;
-    // this line is to avoid a compile warning before your implementation is complete
-    // and may be removed
-    command[count] = command[count];
-
-
-/*
- * TODO
- *   Call execv, but first using https://stackoverflow.com/a/13784315/1446624 as a refernce,
- *   redirect standard out to a file specified by outputfile.
- *   The rest of the behaviour is same as do_exec()
- *
-*/
-
+    
+    _do_exec_v(outputfile, count, args);
+    
     va_end(args);
-
-    return true;
 }
