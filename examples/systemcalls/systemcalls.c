@@ -88,10 +88,9 @@ bool do_exec(int count, ...)
 {
     va_list args;
     va_start(args, count);
-    
-    _do_exec_v( /* stdout redirect */ NULL, count, args);
-    
+    bool res = _do_exec_v( /* stdout redirect */ NULL, count, args);
     va_end(args);
+    return res;
 }
 
 /**
@@ -103,8 +102,7 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
 {
     va_list args;
     va_start(args, count);
-    
-    _do_exec_v(outputfile, count, args);
-    
+    bool res = _do_exec_v(outputfile, count, args);
     va_end(args);
+    return res;
 }
