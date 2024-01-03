@@ -12,10 +12,8 @@
  *   either in invocation of the system() call, or if a non-zero return
  *   value was returned by the command issued in @param cmd.
 */
-bool do_system(const char *cmd)
-{
-    int res = system(cmd);
-    return res != 0;
+bool do_system(const char *cmd) {
+    return system(cmd) == 0;
 }
 
 bool _do_exec_v(const char *outputfile, int count, va_list args) {
@@ -53,21 +51,23 @@ bool _do_exec_v(const char *outputfile, int count, va_list args) {
             close(fd);
         }
 
-        execv(command[0], &command[1]);
+        // int execv(const char *pathname, char *const argv[])
+        // The initial argument (argv[0]) is the name of a file that is to be executed.
+        execv(/* pathname */ command[0], /* argv[] */ &command[0]);
+
         // exec() functions return only if an error has occurred.
         perror("execv() failed");
         exit(EXIT_FAILURE);
-    }
-        
-    // Parent process.
-    int status;
-    if (waitpid(pid, &status, 0) != pid) {
-        perror("waitpid() failed");
-        return false;
-    }
+    } else { // Parent process.
+        int status;
+        if (waitpid(pid, &status, 0) != pid) {
+            perror("waitpid() failed");
+            return false;
+        }
 
-    // Check the exit status.   
-    return WEXITSTATUS(status) == 0;
+        // Check the exit status.
+        return WEXITSTATUS(status) == 0;
+    }
 }
 
 /**
@@ -84,8 +84,7 @@ bool _do_exec_v(const char *outputfile, int count, va_list args) {
 *   by the command issued in @param arguments with the specified arguments.
 */
 
-bool do_exec(int count, ...)
-{
+bool do_exec(int count, ...) {
     va_list args;
     va_start(args, count);
     bool res = _do_exec_v( /* stdout redirect */ NULL, count, args);
@@ -98,8 +97,7 @@ bool do_exec(int count, ...)
 *   This file will be closed at completion of the function call.
 * All other parameters, see do_exec above
 */
-bool do_exec_redirect(const char *outputfile, int count, ...)
-{
+bool do_exec_redirect(const char *outputfile, int count, ...) {
     va_list args;
     va_start(args, count);
     bool res = _do_exec_v(outputfile, count, args);
