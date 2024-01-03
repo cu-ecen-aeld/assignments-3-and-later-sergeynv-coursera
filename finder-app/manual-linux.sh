@@ -24,18 +24,35 @@ fi
 mkdir -p ${OUTDIR}
 
 cd "$OUTDIR"
+
+# Clone Kinux kernel repo if it does not exist.
 if [ ! -d "${OUTDIR}/linux-stable" ]; then
-    #Clone only if the repository does not exist.
 	echo "CLONING GIT LINUX STABLE VERSION ${KERNEL_VERSION} IN ${OUTDIR}"
 	git clone ${KERNEL_REPO} --depth 1 --single-branch --branch ${KERNEL_VERSION}
 fi
+
+# Checkout the right branch (version)
 if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
     cd linux-stable
     echo "Checking out version ${KERNEL_VERSION}"
     git checkout ${KERNEL_VERSION}
 
-    # TODO: Add your kernel build steps here
+    # Source (page 15):
+    # https://d3c33hcgiwev3.cloudfront.net/JNln4MtVSR-ZZ-DLVQkfYw_833bf61ded3942709a8745e579b1a0f1_Building-the-Linux-Kernel.pdf?Expires=1704412800&Signature=kViP~WLZtQm9l0Tq25DkDSiqJw8Vtpjwnu8FvadETfWEMkBfJCgshDnNV9WV8VweGsScGWutyv-jmYjgOAnWlJFRRtDWb7yvMTWnyRwC~9Dr7eEUEszU1oHedd2Zh3ijtUOyWJiisAgecT0t40yjUpZb5bOnpxmpwHFl~wjER3I_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A
+
+    # "deep clean"
+    make ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILE} mrproper
+
+    # Build defcongig for virt (default)
+    make ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILE} defconfig
+
+    # Build vmlinux
+    # TODO-sergeynv: fix "multiple definition of `yylloc'" linker error.
+    make -j4 ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILE} all
 fi
+
+# TODO-sergeynv: (re)move.
+exit 0
 
 echo "Adding the Image in outdir"
 
