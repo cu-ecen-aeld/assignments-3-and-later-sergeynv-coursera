@@ -22,3 +22,14 @@ elif [ $toolchain_options -eq 1 ]; then
         echo "$toolchain is missing bin/"
     fi
 fi
+
+export CC_PREFIX="aarch64-none-linux-gnu-"
+alias armgcc="${CC_PREFIX}gcc"
+
+alias m="make"
+alias mcc="make CROSS_COMPILE=${CC_PREFIX}"
+alias ml="make ARCH=arm64 CROSS_COMPILE=${CC_PREFIX}"
+alias mlj="make -j4 ARCH=arm64 CROSS_COMPILE=${CC_PREFIX}"
+
+alias croot="cd $(pwd)"
+alias cdlr="cd /tmp/aeld/linux-stable"
