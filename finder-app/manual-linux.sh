@@ -5,13 +5,22 @@
 set -e
 set -u
 
+FINDER_APP_DIR=$(realpath $(dirname $0))
 OUTDIR=/tmp/aeld
+
 KERNEL_REPO=git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
 KERNEL_VERSION=v5.1.10
 BUSYBOX_VERSION=1_33_1
-FINDER_APP_DIR=$(realpath $(dirname $0))
+
 ARCH=arm64
 CROSS_COMPILE=aarch64-none-linux-gnu-
+makexc() {
+    make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} "$@"
+}
+
+FORCE_BUILD_KERNEL= # default: do NOT force (re-)building
+FORCE_BUILD_BUSYBOX=1 # default: DO force (re-)building
+FORCE_MAKE_ROOTFS=1 # default: DO force (re-)making
 
 if [ $# -lt 1 ]
 then
@@ -32,7 +41,7 @@ if [ ! -d "${OUTDIR}/linux-stable" ]; then
 fi
 
 # Checkout the right branch (version)
-if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
+if [ ! -z "${FORCE_BUILD_KERNEL}" ] || [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
     cd linux-stable
     echo "Checking out version ${KERNEL_VERSION}"
     git checkout ${KERNEL_VERSION}
@@ -43,60 +52,119 @@ if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
     # https://github.com/torvalds/linux/commit/e33a814e772cdc36436c8c188d8c42d019fda639
     git am ${FINDER_APP_DIR}/scripts-dtc-Remove-redundant-YYLOC-global-declaratio.patch
 
+    echo "Adding the Image in outdir"
     # Source (page 15):
     # https://d3c33hcgiwev3.cloudfront.net/JNln4MtVSR-ZZ-DLVQkfYw_833bf61ded3942709a8745e579b1a0f1_Building-the-Linux-Kernel.pdf?Expires=1704412800&Signature=kViP~WLZtQm9l0Tq25DkDSiqJw8Vtpjwnu8FvadETfWEMkBfJCgshDnNV9WV8VweGsScGWutyv-jmYjgOAnWlJFRRtDWb7yvMTWnyRwC~9Dr7eEUEszU1oHedd2Zh3ijtUOyWJiisAgecT0t40yjUpZb5bOnpxmpwHFl~wjER3I_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A
 
     # "deep clean"
-    make ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILE} mrproper
+    makexc mrproper
 
     # Build defcongig for virt (default)
-    make ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILE} defconfig
+    makexc defconfig
 
     # Build vmlinux
-    make -j4 ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILE} all
+    makexc -j4 all
 fi
-
-# TODO-sergeynv: (re)move.
-exit 0
-
-echo "Adding the Image in outdir"
 
 echo "Creating the staging directory for the root filesystem"
 cd "$OUTDIR"
-if [ -d "${OUTDIR}/rootfs" ]
+_ROOTFS=${OUTDIR}/rootfs
+if [ ! -d "${_ROOTFS}" ]
 then
-	echo "Deleting rootfs directory at ${OUTDIR}/rootfs and starting over"
-    sudo rm  -rf ${OUTDIR}/rootfs
+    echo "Creating rootfs directory at ${_ROOTFS}"
+elif [ ! -z "${FORCE_MAKE_ROOTFS}" ]
+then
+    echo "Deleting rootfs directory at ${_ROOTFS} and starting over"
+    sudo rm -rf ${_ROOTFS}
+else
+    echo "Re-using existing rootfs at ${_ROOTFS}"
 fi
 
-# TODO: Create necessary base directories
+if [ ! -d "${_ROOTFS}" ]
+then
+    mkdir ${_ROOTFS}
+    cd ${_ROOTFS}
+    mkdir \
+        bin \
+        dev \
+        etc \
+        home \
+        lib \
+        lib64 \
+        proc \
+        sbin \
+        sys \
+        tmp \
+        usr \
+        usr/bin \
+        usr/lib \
+        usr/sbin \
+        var \
+        var/log
+fi
 
-cd "$OUTDIR"
+
+cd ${OUTDIR}
 if [ ! -d "${OUTDIR}/busybox" ]
 then
 git clone git://busybox.net/busybox.git
     cd busybox
     git checkout ${BUSYBOX_VERSION}
-    # TODO:  Configure busybox
 else
     cd busybox
 fi
 
-# TODO: Make and install busybox
+# Configure (make defconfig), build and install busybox
+if [ ! -z "${FORCE_BUILD_BUSYBOX}" ] ||  [ ! -e ./busybox ]; then
+    make   distclean
+    make   defconfig
+    makexc
+fi
 
-echo "Library dependencies"
-${CROSS_COMPILE}readelf -a bin/busybox | grep "program interpreter"
-${CROSS_COMPILE}readelf -a bin/busybox | grep "Shared library"
+_BUSYBOX_BINARY="${_ROOTFS}/bin/busybox"
+if [ ! -z "${FORCE_BUILD_BUSYBOX}" ] || [ ! -e "${_BUSYBOX_BINARY}" ]; then
+    makexc CONFIG_PREFIX="${_ROOTFS}" install
+fi
 
-# TODO: Add library dependencies to rootfs
+# Add library dependencies to rootfs
+echo "Intalling dependencies..."
+_GCC_SYSROOT=$(${CROSS_COMPILE}gcc -print-sysroot)
 
-# TODO: Make device nodes
+_INTERPRETER=$(${CROSS_COMPILE}readelf -a ${_BUSYBOX_BINARY} | grep "program interpreter" | sed 's|.*program interpreter: \(/.*\)].*|\1|')
+# Alternatively:
+#   _INTERPRETER="/lib/ld-linux-aarch64.so.1"
+echo "  Interpeter:"
+echo "    ${_INTERPRETER}"
+cp ${_GCC_SYSROOT}/${_INTERPRETER} ${_ROOTFS}/${_INTERPRETER}
+
+_SHARED_LIBS=$(${CROSS_COMPILE}readelf -a ${_BUSYBOX_BINARY} | grep "Shared library" | sed 's|.*Shared library: \[\(.*\)].*|\1|')
+# Alternatively:
+#   _SHARED_LIBS=\
+#   "libm.so.6
+#   libresolv.so.2
+#   libc.so.6"
+echo "  Shared libraries:"
+while IFS= read -r lib; do
+    echo "    $lib"
+    cp ${_GCC_SYSROOT}/lib64/${lib} ${_ROOTFS}/lib64/
+done <<< "$_SHARED_LIBS"
+
+# Make device nodes
+# mknod <name> <type> <major> <minor>
+cd ${_ROOTFS}
+sudo mknod -m 666 dev/null c 1 3
+sudo mknod -m 600 dev/console c 5 1
+
+# TODO-sergeynv: (re)move.
+exit 0
 
 # TODO: Clean and build the writer utility
 
 # TODO: Copy the finder related scripts and executables to the /home directory
 # on the target rootfs
 
-# TODO: Chown the root directory
+# Chown the root directory
+cd ${_ROOTFS}
+sudo chown -R root:root *
 
 # TODO: Create initramfs.cpio.gz
