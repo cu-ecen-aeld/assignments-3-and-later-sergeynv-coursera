@@ -52,7 +52,6 @@ if [ ! -z "${FORCE_BUILD_KERNEL}" ] || [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH
     # https://github.com/torvalds/linux/commit/e33a814e772cdc36436c8c188d8c42d019fda639
     git am ${FINDER_APP_DIR}/scripts-dtc-Remove-redundant-YYLOC-global-declaratio.patch
 
-    echo "Adding the Image in outdir"
     # Source (page 15):
     # https://d3c33hcgiwev3.cloudfront.net/JNln4MtVSR-ZZ-DLVQkfYw_833bf61ded3942709a8745e579b1a0f1_Building-the-Linux-Kernel.pdf?Expires=1704412800&Signature=kViP~WLZtQm9l0Tq25DkDSiqJw8Vtpjwnu8FvadETfWEMkBfJCgshDnNV9WV8VweGsScGWutyv-jmYjgOAnWlJFRRtDWb7yvMTWnyRwC~9Dr7eEUEszU1oHedd2Zh3ijtUOyWJiisAgecT0t40yjUpZb5bOnpxmpwHFl~wjER3I_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A
 
@@ -66,8 +65,12 @@ if [ ! -z "${FORCE_BUILD_KERNEL}" ] || [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH
     makexc -j4 all
 fi
 
-echo "Creating the staging directory for the root filesystem"
 cd "$OUTDIR"
+echo "Adding the Image in outdir"
+cp linux-stable/arch/${ARCH}/boot/Image .
+ls -la ./Image
+
+echo "Creating the staging directory for the root filesystem"
 _ROOTFS=${OUTDIR}/rootfs
 if [ ! -d "${_ROOTFS}" ]
 then
@@ -102,7 +105,6 @@ then
         var \
         var/log
 fi
-
 
 cd ${OUTDIR}
 if [ ! -d "${OUTDIR}/busybox" ]
