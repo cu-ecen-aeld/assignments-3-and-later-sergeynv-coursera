@@ -23,13 +23,12 @@ elif [ $toolchain_options -eq 1 ]; then
     fi
 fi
 
-export CC_PREFIX="aarch64-none-linux-gnu-"
-alias armgcc="${CC_PREFIX}gcc"
-
+export XC_PREFIX="aarch64-none-linux-gnu-"
+export XC_ARCH="arm64"
+alias xc="${XC_PREFIX}gcc"
 alias m="make"
-alias mcc="make CROSS_COMPILE=${CC_PREFIX}"
-alias ml="make ARCH=arm64 CROSS_COMPILE=${CC_PREFIX}"
-alias mlj="make -j4 ARCH=arm64 CROSS_COMPILE=${CC_PREFIX}"
+alias mxc="make ARCH=${XC_ARCH} CROSS_COMPILE=${XC_PREFIX}"
 
+export LINUX_ROOT="/tmp/aeld/linux-stable"
 alias croot="cd $(pwd)"
-alias cdlr="cd /tmp/aeld/linux-stable"
+alias cdlr="cd ${LINUX_ROOT}"
