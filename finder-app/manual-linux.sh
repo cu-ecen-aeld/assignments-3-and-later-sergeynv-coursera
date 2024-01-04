@@ -50,6 +50,8 @@ if [ ! -z "${FORCE_BUILD_KERNEL}" ] || [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH
     # (.text+0x0): multiple definition of `yylloc'; dtc-lexer.lex.o (symbol from plugin):(.text+0x0): first defined here
     # The following pathch fixes this
     # https://github.com/torvalds/linux/commit/e33a814e772cdc36436c8c188d8c42d019fda639
+    source ${FINDER_APP_DIR}/ensure-git-credentials.sh
+    ensure-git-credentials
     git am ${FINDER_APP_DIR}/scripts-dtc-Remove-redundant-YYLOC-global-declaratio.patch
 
     # Source (page 15):
