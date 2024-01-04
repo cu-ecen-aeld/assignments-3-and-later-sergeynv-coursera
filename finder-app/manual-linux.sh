@@ -6,7 +6,7 @@ set -e
 set -u
 
 FINDER_APP_DIR=$(realpath $(dirname $0))
-OUTDIR=/tmp/aeld
+OUTDIR=/var/aeld # changed from /tmp/aedl
 
 KERNEL_REPO=git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
 KERNEL_VERSION=v5.1.10
