@@ -128,7 +128,8 @@ if [ ! -z "${FORCE_BUILD_BUSYBOX}" ] || [ ! -e "${_BUSYBOX_BINARY}" ]; then
 fi
 
 # Add library dependencies to rootfs
-echo "Intalling dependencies..."
+echo
+echo "Intalling busybox dependencies in /lib/ and /lib64/"
 _GCC_SYSROOT=$(${CROSS_COMPILE}gcc -print-sysroot)
 
 _INTERPRETER=$(${CROSS_COMPILE}readelf -a ${_BUSYBOX_BINARY} | grep "program interpreter" | sed 's|.*program interpreter: \(/.*\)].*|\1|')
@@ -149,17 +150,35 @@ while IFS= read -r lib; do
     echo "    $lib"
     cp ${_GCC_SYSROOT}/lib64/${lib} ${_ROOTFS}/lib64/
 done <<< "$_SHARED_LIBS"
+cd ${_ROOTFS}
+tree lib/ lib64/
 
 # Make device nodes
 # mknod <name> <type> <major> <minor>
+echo
+echo "Populating /dev/"
 cd ${_ROOTFS}
 sudo mknod -m 666 dev/null c 1 3
 sudo mknod -m 600 dev/console c 5 1
+tree dev/
 
-# TODO: Clean and build the writer utility
+# Clean and build the writer utility
+cd ${FINDER_APP_DIR}
+make   clean
+makexc all
 
-# TODO: Copy the finder related scripts and executables to the /home directory
+# Copy the finder related scripts and executables to the /home directory
 # on the target rootfs
+echo
+echo "Populating /home/"
+cp -r -t "${_ROOTFS}/home/" \
+    conf/ \
+    autorun-qemu.sh \
+    finder.sh \
+    finder-test.sh \
+    writer
+cd ${_ROOTFS}    
+tree home/
 
 # Chown the root directory
 cd ${_ROOTFS}
