@@ -18,9 +18,9 @@ makexc() {
     make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} "$@"
 }
 
-FORCE_BUILD_KERNEL= # default: do NOT force (re-)building
-FORCE_BUILD_BUSYBOX=1 # default: DO force (re-)building
-FORCE_MAKE_ROOTFS=1 # default: DO force (re-)making
+FORCE_BUILD_KERNEL=   # default: do NOT force (re-)building
+FORCE_BUILD_BUSYBOX=  # default: DO force (re-)building
+FORCE_MAKE_ROOTFS=1   # default: DO force (re-)making
 
 if [ $# -lt 1 ]
 then
@@ -113,9 +113,8 @@ git clone git://busybox.net/busybox.git
 else
     cd busybox
 fi
-
 # Configure (make defconfig), build and install busybox
-if [ ! -z "${FORCE_BUILD_BUSYBOX}" ] ||  [ ! -e ./busybox ]; then
+if [ ! -z "${FORCE_BUILD_BUSYBOX}" ] || [ ! -e ./busybox ]; then
     make   distclean
     make   defconfig
     makexc
@@ -155,9 +154,6 @@ cd ${_ROOTFS}
 sudo mknod -m 666 dev/null c 1 3
 sudo mknod -m 600 dev/console c 5 1
 
-# TODO-sergeynv: (re)move.
-exit 0
-
 # TODO: Clean and build the writer utility
 
 # TODO: Copy the finder related scripts and executables to the /home directory
@@ -166,5 +162,13 @@ exit 0
 # Chown the root directory
 cd ${_ROOTFS}
 sudo chown -R root:root *
+echo "Copy initramfs/ into archive..."
+find . | cpio -H newc -ov --owner root:root > ${OUTDIR}/initramfs.cpio
 
-# TODO: Create initramfs.cpio.gz
+# Create initramfs.cpio.gz
+echo "Compressing initramfs.cpio..."
+cd ${OUTDIR}
+gzip -f initramfs.cpio
+
+echo "Done"
+ls -la ./initramfs.cpio.gz
