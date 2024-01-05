@@ -3,8 +3,9 @@ on:
     push:
         tags-ignore:
             - '*'
-        branches:
-            - '*'
+# Disable running on every (branch) push for now.
+#        branches:
+#            - '*'
     workflow_dispatch:
 jobs:
     unit-test:
