@@ -29,6 +29,10 @@ alias xc="${XC_PREFIX}gcc"
 alias m="make"
 alias mxc="make ARCH=${XC_ARCH} CROSS_COMPILE=${XC_PREFIX}"
 
-export LINUX_ROOT="/tmp/aeld/linux-stable"
+
+export OUT_DIR="/var/aeld" # keep in sync with OUTDIR in finder-app/manual-linux.sh
+export LINUX_ROOT="$OUT_DIR/linux-stable"
+
 alias croot="cd $(pwd)"
+alias cout="cd ${OUT_DIR}"
 alias cdlr="cd ${LINUX_ROOT}"
