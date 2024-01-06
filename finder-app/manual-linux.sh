@@ -22,6 +22,10 @@ FORCE_BUILD_KERNEL=   # default: do NOT force (re-)building
 FORCE_BUILD_BUSYBOX=  # default: DO force (re-)building
 FORCE_MAKE_ROOTFS=1   # default: DO force (re-)making
 
+alias tree="ls -lah"  # Ubuntu does not ship tree util by defaukl.
+                      # Comment this if running on a machine that has tree insalled,
+                      # and if you want to use it.
+
 if [ $# -lt 1 ]
 then
 	echo "Using default directory ${OUTDIR} for output"
