@@ -4,7 +4,7 @@ on:
         tags-ignore:
             - '*'
         branches:
-            - '*'
+            - 'main'
     workflow_dispatch:
 jobs:
     unit-test:
