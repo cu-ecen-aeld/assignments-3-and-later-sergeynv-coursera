@@ -22,9 +22,15 @@ FORCE_BUILD_KERNEL=   # default: do NOT force (re-)building
 FORCE_BUILD_BUSYBOX=  # default: DO force (re-)building
 FORCE_MAKE_ROOTFS=1   # default: DO force (re-)making
 
-alias tree="ls -lah"  # Ubuntu does not ship tree util by defaukl.
-                      # Comment this if running on a machine that has tree insalled,
-                      # and if you want to use it.
+print_content() {
+    # Would prefer using the 'tree' util, but Ubuntu doesn't have in "out of the box",
+    # hence using 'ls'.
+    # However if you still want to use 'tree' (and have it installed!) uncomment the line below: 
+    
+    # tree "$@"
+    
+    ls -lah "$@"
+} 
 
 if [ $# -lt 1 ]
 then
@@ -35,7 +41,6 @@ else
 fi
 
 mkdir -p ${OUTDIR}
-
 cd "$OUTDIR"
 
 # Clone Kinux kernel repo if it does not exist.
@@ -72,7 +77,7 @@ fi
 cd "$OUTDIR"
 echo "Adding the Image in outdir"
 cp linux-stable/arch/${ARCH}/boot/Image .
-ls -la ./Image
+ls -lah ./Image
 
 echo "Creating the staging directory for the root filesystem"
 _ROOTFS=${OUTDIR}/rootfs
@@ -155,7 +160,7 @@ while IFS= read -r lib; do
     cp ${_GCC_SYSROOT}/lib64/${lib} ${_ROOTFS}/lib64/
 done <<< "$_SHARED_LIBS"
 cd ${_ROOTFS}
-tree lib/ lib64/
+print_content lib/ lib64/
 
 # Make device nodes
 # mknod <name> <type> <major> <minor>
@@ -164,7 +169,7 @@ echo "Populating /dev/"
 cd ${_ROOTFS}
 sudo mknod -m 666 dev/null c 1 3
 sudo mknod -m 600 dev/console c 5 1
-tree dev/
+print_content dev/
 
 # Clean and build the writer utility
 cd ${FINDER_APP_DIR}
@@ -182,7 +187,7 @@ cp -r -t "${_ROOTFS}/home/" \
     finder-test.sh \
     writer
 cd ${_ROOTFS}    
-tree home/
+print_content home/
 
 # Chown the root directory
 cd ${_ROOTFS}
@@ -196,4 +201,4 @@ cd ${OUTDIR}
 gzip -f initramfs.cpio
 
 echo "Done"
-ls -la ./initramfs.cpio.gz
+ls -lah ./initramfs.cpio.gz
