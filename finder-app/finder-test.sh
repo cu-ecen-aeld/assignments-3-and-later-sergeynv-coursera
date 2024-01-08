@@ -50,13 +50,6 @@ then
 	fi
 fi
 
-# Assignment 3 (part 1):
-# Modify your finder-app/finder-test.sh script to remove the make step.
-#
-# echo "Removing the old writer utility and compiling as a native application"
-# make clean
-# make
-
 for i in $( seq 1 $NUMFILES)
 do
 	./writer "$WRITEDIR/${username}$i.txt" "$WRITESTR"
@@ -66,6 +59,12 @@ OUTPUTSTRING=$(./finder.sh "$WRITEDIR" "$WRITESTR")
 
 # remove temporary directories
 rm -rf /tmp/aeld-data
+
+# Assinment 4:
+# Modify your finder-test.sh script to write a file with output of the finder command
+# to /tmp/assignment4-result.txt
+
+echo ${OUTPUTSTRING} > /tmp/${assignment}-result.txt
 
 set +e
 echo ${OUTPUTSTRING} | grep "${MATCHSTR}"
