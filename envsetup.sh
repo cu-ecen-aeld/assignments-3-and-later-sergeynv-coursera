@@ -1,3 +1,8 @@
+export AELD_ASSIGNMENTS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+# Just an "alias":
+export AESD_ASSIGNMENTS_DIR="${AELD_ASSIGNMENTS_DIR}"
+alias croot="cd ${AELD_ASSIGNMENTS_DIR}"
+
 # Look for the aarch64-none-linux-gnu ARM GNU Toolchain in the parent dir,
 # and, if found, add it to PATH.
 toolchain_options=$(ls -d1 ../arm-gnu-toolchain-*-aarch64-none-linux-gnu/ | wc -l)
@@ -29,11 +34,9 @@ alias xc="${XC_PREFIX}gcc"
 alias m="make"
 alias mxc="make ARCH=${XC_ARCH} CROSS_COMPILE=${XC_PREFIX}"
 
-
 export OUT_DIR="/var/aeld" # keep in sync with OUTDIR in finder-app/manual-linux.sh
 export LINUX_ROOT="$OUT_DIR/linux-stable"
 
-alias croot="cd $(pwd)"
 alias cout="cd ${OUT_DIR}"
 alias cdlr="cd ${LINUX_ROOT}"
 
