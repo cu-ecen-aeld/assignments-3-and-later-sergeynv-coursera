@@ -27,10 +27,10 @@ git checkout origin/main
 git submodule update --init --recursive
 
 # Add other remotes
-git remote add asignments-base https://github.com/cu-ecen-aeld/aesd-assignments.git
-git remote add asignments-1 git@github.com:cu-ecen-aeld/assignment-1-sergeynv-coursera.git
-git remote add asignments-2 git@github.com:cu-ecen-aeld/assignment-2-sergeynv-coursera.git
-git remote add asignments-3 git@github.com:cu-ecen-aeld/assignments-3-and-later-sergeynv-coursera.git
+git remote add base https://github.com/cu-ecen-aeld/aesd-assignments.git
+git remote add a3+ git@github.com:cu-ecen-aeld/assignments-3-and-later-sergeynv-coursera.git
+# git remote add a2 git@github.com:cu-ecen-aeld/assignment-2-sergeynv-coursera.git
+# git remote add a1 git@github.com:cu-ecen-aeld/assignment-1-sergeynv-coursera.git
 ```
 
 ### Course 1
