@@ -36,3 +36,11 @@ export LINUX_ROOT="$OUT_DIR/linux-stable"
 alias croot="cd $(pwd)"
 alias cout="cd ${OUT_DIR}"
 alias cdlr="cd ${LINUX_ROOT}"
+
+# The following shouldn't really be here, but they are to make chaning hosts machines easier.
+alias sls="ls -lahv --group-directories-first --no-group --literal --indicator-style=slash --color=auto"
+alias gs="git status"
+alias gl="git log --oneline -n10"
+alias gsla="git log --graph --pretty=format:'%C(bold green)%h%Creset%C(bold white)%d%Creset %C(yellow)%cr%Creset %C(bold blue)%an%Creset %C(blue)<%ae>%Creset %n%C(white)%s%n%Creset'"
+alias gsl="gsla -5"
+alias groot="git rev-parse --show-toplevel"
