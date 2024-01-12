@@ -1,6 +1,9 @@
 export AELD_ASSIGNMENTS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # Just an "alias":
 export AESD_ASSIGNMENTS_DIR="${AELD_ASSIGNMENTS_DIR}"
+# Consider creating symlinks from /
+# sudo ln -sf  $(realpath "${AESD_ASSIGNMENTS_DIR}/..") /aesd
+# sudo ln -sf  $(realpath "${AESD_ASSIGNMENTS_DIR}/..") /aeld
 alias croot="cd ${AELD_ASSIGNMENTS_DIR}"
 
 # Look for the aarch64-none-linux-gnu ARM GNU Toolchain in the parent dir,
