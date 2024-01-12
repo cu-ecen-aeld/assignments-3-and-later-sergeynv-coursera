@@ -7,11 +7,13 @@
 #include <netdb.h>          // struct addrinfo
 #include <stdio.h>          // printf()
 #include <stdlib.h>         // EXIT_FAILURE
-#include <string.h>         // strerror()
+#include <string.h>         // strerror(), strcmp()
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/stat.h>       // umask()
 #include <unistd.h>         // close()
 #include <inttypes.h>
+#include <stdbool.h>
 
 #define PORT_STR "9000"
 #define	SOCKET_FAILURE -1
@@ -20,15 +22,23 @@ int open_socket(const char * port_str);
 
 void handle_connection(const struct sockaddr_in *, int fd);
 
+static bool d; // run as daemon.
+static FILE * tmp_file;
+
 int sock_fd = -1;
 int conn_fd = -1;
 
-static FILE * tmp_file;
+void parse_args(int, char**);
+void daemonize();
 
 int main(int argc, char** argv) {
-    log_i("aesd-socket server starting...\n");
+    parse_args(argc, argv);
+
+    log_i("aesdsocket (server) starting...\n");
 
     // First of all, install signal SIGINT and SIGTERM handlers.
+    // We can do it here, before possibly "daemonizing", because
+    // a child process inherits signal actions of the parent on fork.
     install_sigint_sigterm_handlers();
 
     // https://linux.die.net/man/3/fdopen
@@ -46,14 +56,21 @@ int main(int argc, char** argv) {
     log_i("  " TMP_FILE_PATH " opened.\n");
     #endif
 
+    // Try to open (bind()) socket.
     sock_fd = open_socket(PORT_STR);
     
+    // If we need to start (fork()) a daemon, now - after we bound our desired port -
+    // is the time.
+    if (d) daemonize();
+
+    // Start "listening" (mark the socket as accepting connections).
     // https://pubs.opengroup.org/onlinepubs/009695399/functions/listen.html
     if (listen(sock_fd, /* backlog */ 0) != 0) {
         log_e("listen() failed (%d): %s\n", errno, strerror(errno));
         exit(SOCKET_FAILURE);
     }
 
+    // Wait for and accept connections.
     // https://man7.org/linux/man-pages/man2/accept.2.html
     struct sockaddr_in addr_in;
     struct sockaddr * addr_ptr = (struct sockaddr *) &addr_in;
@@ -170,4 +187,66 @@ void handle_connection(const struct sockaddr_in * addr_in, int conn_fd) {
     fclose(sock_file);
 
     log_i("Closed connection from %s\n", in_addr_str);
+}
+
+void daemonize() {
+    log_i("aesdsocket \"daemonizing\"...\n");
+    const pid_t pid = fork();
+
+    if (pid == -1) {
+        log_e("fork() failed (%d): %s\n", errno, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+
+    if (pid == 0) {
+        // Child / daemon process.
+        log_i("aesdsocket daemon running...\n");
+
+        // Reset file umask.
+        umask(0);
+
+        if (setsid() == -1) {
+            log_e("setsid() failed (%d): %s\n", errno, strerror(errno));
+            exit(EXIT_FAILURE);
+        }
+
+        // Change working directory to root.
+        if (chdir("/") < 0) {
+            log_e("chdir(\"/\") failed (%d): %s\n", errno, strerror(errno));
+            exit(EXIT_FAILURE);
+        }
+
+        // Redirect stdin to /dev/null.
+        stdin  = freopen("/dev/null", "r", stdin);
+        // Redirect stdout, and stderr to /dev/null, unless debugging.
+        #ifndef DEBUG
+        stdout = freopen("/dev/null", "a", stdout);
+        stderr = freopen("/dev/null", "a", stderr);
+        #endif
+    } else {
+        // "Parent" process.
+        log_i("aesdsocket daemon started (pid=%ld), exiting...\n", pid);
+
+        // "Close" FDs for the socket and the tmp file explicitely,
+        // although it's probably unnecessary.
+        fclose(tmp_file);
+        close(sock_fd);
+
+        exit(EXIT_SUCCESS);
+    }
+}
+
+void parse_args(int argc, char** argv) {
+    if (argc == 1) {
+        d = false;
+    } else if (argc == 2 && strcmp("-d", argv[1]) == 0) {
+        d = true;
+    } else {
+        printf("invalid options:");
+        for (int i = 0; i < argc; i++) {
+            printf(" %s", argv[i]);
+        }
+        printf("\nusage: aesdsocket [-d]\n");
+        exit(EXIT_FAILURE);
+    }
 }

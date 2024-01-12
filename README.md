@@ -87,6 +87,7 @@ tar -xvf ${FILENAME}
 - [Assignment 5, Part 1](https://www.coursera.org/learn/linux-system-programming-introduction-to-buildroot/supplement/c7ZrG/assignment-5-part-1-instructions)
   - [Sockets (PDF)](https://d3c33hcgiwev3.cloudfront.net/BKfAy6NTSyinwMujU2socA_0ee2c6e43dec4ce99488f4f3ff90d8f1_Sockets.pdf?Expires=1705104000&Signature=Uk9~sx2YRhs1LxI9uE0pPkojOZ49gp5Eh9jxVXVAZuz7DdE9o4bdvH-Jw3gRonaNgL5IcSC50~vUZlhMwtmuX~7eurf4jX5wjKYcurVAhiqGjYNio7bEz4ZlvpxAoA19Ck2Uc62a-3an45c1Qg7eqiR8TmBKi5mzLbVQcLsX8sg_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)
   - [Signals (PDF)](https://d3c33hcgiwev3.cloudfront.net/67c2eKNUSSC3NnijVMkgXg_7bce9fe876d94bf8a592d3e77fe0c4f1_Signal-Management.pdf?Expires=1705104000&Signature=jRrDmLdi8LZjPLoh7WIBBnHFe5RZ2ZPDqjCs-SwQ639fHhzaCDEdRUnd-KY16Wg2uQPSddVE8zsyFejms3Xkt2nIv1qYAyqQC~BhQ2jWebWf-3-wlxX~sBn0bcyL35cJlCOLxEFJYZdAdgO-aanu5EQ0kJJvQJReluySxTagwcM_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)
+  - [Processes and Daemons (PDF)](https://d3c33hcgiwev3.cloudfront.net/ZkK8S2gSTN2CvEtoEozd1g_c10c3f0aadb74a849ba52fc90af058f1_Processes-and-Daemons.pdf?Expires=1705190400&Signature=damMfNjv1-DFb8KQi17lw6ZXNwq7zjVFL8fB5EXBIwvPGmfZ9DIECPECD-egvQ-zmrf0o~33xj44dJ1pgU0jWyvMUzDCo-okEGg1gXxJX6ugD3UhkSyMiR3xm0cLg9KdB-U9D0r6NNFOmbCbnPWLenzRrhh0jr24M0nOrQ0CTYc_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)
 - [Assignment 5, Part 2](https://www.coursera.org/learn/linux-system-programming-introduction-to-buildroot/supplement/oLYlx/assignment-5-part-2-instructions)
 
 ### Testing
