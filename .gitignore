@@ -1,8 +1,9 @@
+.vscode/
 *.o
-writer
-Test_*_Runner.c
+**/valgrind-out.txt
+aesd-build
 build/
 crosstool-ng
-aesd-build
-.vscode/
+Test_*_Runner.c
 test.sh.log
+writer
