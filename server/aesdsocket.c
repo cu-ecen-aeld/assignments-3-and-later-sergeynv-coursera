@@ -168,7 +168,7 @@ int open_socket(const char * port_str) {
 }
 
 void handle_connection(const struct sockaddr_in * addr_in, int conn_fd) {
-    const char * in_addr_str = inet_ntoa(addr_in->sin_addr);
+    char * in_addr_str = inet_ntoa(addr_in->sin_addr);
     log_i("Accepted connection from %s\n", in_addr_str);
 
     #ifdef DEBUG
@@ -186,6 +186,10 @@ void handle_connection(const struct sockaddr_in * addr_in, int conn_fd) {
 
     fclose(sock_file);
 
+    // IMPORTANT: do NOT re-use the value stored `in_addr_str` pointer.
+    // Re-using the pointer after using it one in log_i() above causes segfaults
+    // when running "under" valgrind.
+    in_addr_str = inet_ntoa(addr_in->sin_addr);
     log_i("Closed connection from %s\n", in_addr_str);
 }
 
