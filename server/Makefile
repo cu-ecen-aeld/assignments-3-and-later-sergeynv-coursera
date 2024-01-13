@@ -13,3 +13,6 @@ clean :
 
 run : $(TARGET)
 	./$(TARGET)
+
+rund : $(TARGET)
+	./$(TARGET) -d

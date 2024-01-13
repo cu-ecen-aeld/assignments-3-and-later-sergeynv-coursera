@@ -81,14 +81,15 @@ tar -xvf ${FILENAME}
 
 ##### Week 3
 - [Assignment 4, Part 1](https://www.coursera.org/learn/linux-system-programming-introduction-to-buildroot/supplement/GT0Ld/assignment-4-part-1-instructions)
-- [Assignment 4, Part 2](https://www.coursera.org/learn/linux-system-programming-introduction-to-buildroot/supplement/fdk6R/assignment-4-part-2-instructions)
+- [Assignment 4, Part 2](https://www.coursera.org/learn/linux-system-programming-introduction-to-buildroot/supplement/fdk6R/assignment-4-part-2-instructions) (buildroot)
 
 ##### Week 4
 - [Assignment 5, Part 1](https://www.coursera.org/learn/linux-system-programming-introduction-to-buildroot/supplement/c7ZrG/assignment-5-part-1-instructions)
   - [Sockets (PDF)](https://d3c33hcgiwev3.cloudfront.net/BKfAy6NTSyinwMujU2socA_0ee2c6e43dec4ce99488f4f3ff90d8f1_Sockets.pdf?Expires=1705104000&Signature=Uk9~sx2YRhs1LxI9uE0pPkojOZ49gp5Eh9jxVXVAZuz7DdE9o4bdvH-Jw3gRonaNgL5IcSC50~vUZlhMwtmuX~7eurf4jX5wjKYcurVAhiqGjYNio7bEz4ZlvpxAoA19Ck2Uc62a-3an45c1Qg7eqiR8TmBKi5mzLbVQcLsX8sg_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)
   - [Signals (PDF)](https://d3c33hcgiwev3.cloudfront.net/67c2eKNUSSC3NnijVMkgXg_7bce9fe876d94bf8a592d3e77fe0c4f1_Signal-Management.pdf?Expires=1705104000&Signature=jRrDmLdi8LZjPLoh7WIBBnHFe5RZ2ZPDqjCs-SwQ639fHhzaCDEdRUnd-KY16Wg2uQPSddVE8zsyFejms3Xkt2nIv1qYAyqQC~BhQ2jWebWf-3-wlxX~sBn0bcyL35cJlCOLxEFJYZdAdgO-aanu5EQ0kJJvQJReluySxTagwcM_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)
   - [Processes and Daemons (PDF)](https://d3c33hcgiwev3.cloudfront.net/ZkK8S2gSTN2CvEtoEozd1g_c10c3f0aadb74a849ba52fc90af058f1_Processes-and-Daemons.pdf?Expires=1705190400&Signature=damMfNjv1-DFb8KQi17lw6ZXNwq7zjVFL8fB5EXBIwvPGmfZ9DIECPECD-egvQ-zmrf0o~33xj44dJ1pgU0jWyvMUzDCo-okEGg1gXxJX6ugD3UhkSyMiR3xm0cLg9KdB-U9D0r6NNFOmbCbnPWLenzRrhh0jr24M0nOrQ0CTYc_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)
-- [Assignment 5, Part 2](https://www.coursera.org/learn/linux-system-programming-introduction-to-buildroot/supplement/oLYlx/assignment-5-part-2-instructions)
+- [Assignment 5, Part 2](https://www.coursera.org/learn/linux-system-programming-introduction-to-buildroot/supplement/oLYlx/assignment-5-part-2-instructions) (buildroot)
+  - [Linux System Initialization (PDF)](https://d3c33hcgiwev3.cloudfront.net/n-SMqR6ISgmkjKkeiIoJ8Q_8acfdd6a13384864b23fdbcbee64fbf1_Linux-System-Initialization.pdf?Expires=1705276800&Signature=PY0yLVHBmsiEyreuV~vuTc1ab3Llb4TZjPk9~9uGTeg4~0Qw8nZIYaq5tcIltXibESATScf-xSGQdqlQs53EFdQuwZOkGrEUl3bDvrW20ovct-gyQkZaVTnYd4ifBvlPlc0X5s8bEYRmQ7gKduXi8VXXsGBc4KdrCxhl0WrcKO0_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A)
 
 ### Testing
 
