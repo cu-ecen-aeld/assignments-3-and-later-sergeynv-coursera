@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
     // Write to file.
     if (fputs(content, fp) < 0) {
         const int fputs_errno = errno;
-        log_e("fopen() failed (%d): %s\n", fputs_errno, strerror(fputs_errno));
+        log_e("fputs() failed (%d): %s\n", fputs_errno, strerror(fputs_errno));
         return fputs_errno;
     }
 
