@@ -18,15 +18,17 @@
 #define PORT_STR "9000"
 #define	SOCKET_FAILURE -1
 
-int open_socket(const char * port_str);
-
-void handle_connection(const struct sockaddr_in *, int fd);
+// Global variables ("extern" linked from other files).
+int sock_fd = -1;
+int conn_fd = -1;
+bool daemonized = false;
 
 static bool d; // run as daemon.
 static FILE * tmp_file;
 
-int sock_fd = -1;
-int conn_fd = -1;
+int open_socket(const char * port_str);
+
+void handle_connection(const struct sockaddr_in *, int fd);
 
 void parse_args(int, char**);
 void daemonize();
@@ -205,6 +207,7 @@ void daemonize() {
     if (pid == 0) {
         // Child / daemon process.
         log_i("aesdsocket daemon running...\n");
+        daemonized = true;
 
         // Reset file umask.
         umask(0);
@@ -230,6 +233,24 @@ void daemonize() {
     } else {
         // "Parent" process.
         log_i("aesdsocket daemon started (pid=%ld), exiting...\n", pid);
+
+        //  Writing pid of the daemon process to a file (on the best-effort basis).
+        FILE* pid_file = fopen(DAEMON_PID_FILE_PATH, "w"); // "w" creates or overwrites.
+        if (!pid_file) {
+            log_e("fopen(" DAEMON_PID_FILE_PATH ") failed (%d): %s\n",
+                    errno, strerror(errno));
+        } else {
+            if (fprintf(pid_file, "%d", pid) < 0) {
+                log_e("fprintf() to " DAEMON_PID_FILE_PATH " failed (%d): %s\n",
+                        errno, strerror(errno));
+            } else {
+                // Accoding to 'man close':
+                // If you need to be sure that the data is physically stored
+                // on the underlying disk, use fsync(2).
+                fflush(pid_file); // would be fsync() if we were using an FD
+            }
+            fclose(pid_file);
+        }
 
         // "Close" FDs for the socket and the tmp file explicitely,
         // although it's probably unnecessary.

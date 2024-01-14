@@ -47,6 +47,18 @@ void _handle(int signo) {
     }
     #endif
 
+    if (daemonized) {
+        if (remove(DAEMON_PID_FILE_PATH) != 0) {
+            log_e("remove(" DAEMON_PID_FILE_PATH ") failed: %s (%d)", strerror(errno), errno);
+            // Do NOT set EXIT_FAILURE because of this.
+        }
+        #ifdef DEBUG
+        else {
+            log_i("  " DAEMON_PID_FILE_PATH " removed.\n");
+        }
+        #endif
+    }
+
     _exit(exit_status);
 }
 
