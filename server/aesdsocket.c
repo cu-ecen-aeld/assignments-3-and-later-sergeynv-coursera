@@ -15,8 +15,13 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
-#define PORT_STR "9000"
 #define	SOCKET_FAILURE -1
+#define PORT_STR "9000"
+// Passing backlog=0 to listen() below results the following error on QEMU:
+//   TCP: request_sock_TCP: Possible SYN flooding on port 9000.
+//   Dropping request.  Check SNMP counters.
+// Hence, possing 128, which matches the 'net.ipv4.tcp_max_syn_backlog' sysctl value.
+#define SOCKET_BACKLOG_SIZE 128
 
 // Global variables ("extern" linked from other files).
 int sock_fd = -1;
@@ -67,10 +72,13 @@ int main(int argc, char** argv) {
 
     // Start "listening" (mark the socket as accepting connections).
     // https://pubs.opengroup.org/onlinepubs/009695399/functions/listen.html
-    if (listen(sock_fd, /* backlog */ 0) != 0) {
+    if (listen(sock_fd, SOCKET_BACKLOG_SIZE) != 0) {
         log_e("listen() failed (%d): %s\n", errno, strerror(errno));
         exit(SOCKET_FAILURE);
     }
+    #ifdef DEBUG
+    log_i("  listen()-ing on TCP:" PORT_STR " (with backlog=%d) now", SOCKET_BACKLOG_SIZE);
+    #endif
 
     // Wait for and accept connections.
     // https://man7.org/linux/man-pages/man2/accept.2.html
